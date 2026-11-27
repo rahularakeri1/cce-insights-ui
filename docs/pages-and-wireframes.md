@@ -83,8 +83,6 @@ lost its "Search Facility" free-text box, now redundant with the global picker.
 
 ## 0b. Role-aware sidebar (Milestone 10)
 
-> **Planned — Milestone 10. Not implemented yet;** this is the agreed design, written first (docs-first).
-
 ```
  FACILITY_ADMIN (holds Dashboard only)          SUPER_ADMIN (holds all 7)         User with no menus
 ┌────────────────────┐                         ┌────────────────────┐            ┌────────────────────────────┐

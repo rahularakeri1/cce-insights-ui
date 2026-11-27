@@ -1,7 +1,7 @@
 import type { ErrorResponse, PaginatedResponse } from './types';
 import { authEnabled, getToken } from '../auth/keycloak';
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+export const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 export class ApiError extends Error {
   constructor(
@@ -23,7 +23,7 @@ function buildUrl(path: string, params?: Record<string, string | undefined>): st
   return url.toString();
 }
 
-function authHeaders(): Record<string, string> {
+export function authHeaders(): Record<string, string> {
   const headers: Record<string, string> = { Accept: 'application/json' };
   if (authEnabled) {
     // Live Keycloak access token (kept fresh by initAuth's refresh loop). VITE_AUTH_TOKEN is a
@@ -34,7 +34,7 @@ function authHeaders(): Record<string, string> {
   return headers;
 }
 
-async function handleResponse(res: Response) {
+export async function handleResponse(res: Response) {
   if (!res.ok) {
     const raw = await res.json().catch(() => ({
       code: 'UNKNOWN',

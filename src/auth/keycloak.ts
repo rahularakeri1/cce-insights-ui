@@ -54,6 +54,12 @@ export function getUsername(): string | undefined {
   return keycloak?.tokenParsed?.preferred_username as string | undefined;
 }
 
+/** Where to land after sign-out: the app's own router base ('/' locally, '/insights' when deployed). */
+export function logoutRedirectUri(): string {
+  const base = import.meta.env.VITE_ROUTER_BASE || '/';
+  return window.location.origin + (base.startsWith('/') ? base : '/' + base);
+}
+
 export function logout(): void {
-  keycloak?.logout({ redirectUri: window.location.origin + '/insights' });
+  keycloak?.logout({ redirectUri: logoutRedirectUri() });
 }

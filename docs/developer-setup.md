@@ -81,8 +81,6 @@ VITE_DEFAULT_DATE_RANGE_DAYS=90
 
 ### 2.3b Running with login (Milestone 10)
 
-> **Planned — Milestone 10. Not implemented yet;** this is the agreed design, written first (docs-first).
-
 Role-aware menus need a real user, so run with login. Put this in `.env.local` (git-ignored; it overrides `.env`):
 
 ```bash

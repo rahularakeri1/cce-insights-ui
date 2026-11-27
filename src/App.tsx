@@ -88,6 +88,7 @@ export function App() {
                 <Route path="/ingestion" element={<IngestionPipeline />} />
                 <Route path="/intelligence" element={<Intelligence />} />
                 <Route path="/exports" element={<Exports />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </Suspense>
           )}

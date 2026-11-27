@@ -112,6 +112,13 @@ describe('App — role-aware sidebar (Milestone 10)', () => {
     expect(screen.queryByText('EventVolume page')).not.toBeInTheDocument();
   });
 
+  it('an unknown address (e.g. /insights locally) goes to the first allowed page, not a blank screen', async () => {
+    user([menu('/', 'Dashboard'), menu('/facilities', 'Facilities')]);
+    renderAt('/insights');
+    expect(where()).toBe('/');
+    expect(await screen.findByText('Dashboard page')).toBeInTheDocument();
+  });
+
   it('a user without Dashboard who opens the root lands on their first menu', async () => {
     user([menu('/events', 'Events', 'SignalIcon'), menu('/ingestion', 'Ingestion', 'CogIcon')]);
     renderAt('/');

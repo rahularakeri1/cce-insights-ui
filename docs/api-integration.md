@@ -134,6 +134,19 @@ export function getUsername(): string | undefined;
 export function logout(): void;             // redirect → origin + '/insights'
 ```
 
+#### Menus for the signed-in user (Milestone 10)
+
+> **Planned — Milestone 10. Not implemented yet;** this is the agreed design, written first (docs-first).
+
+`GET {VITE_API_BASE_URL}/admin/v1/me/menus?console=INSIGHTS` — answered by `cce-admin-service` (through the gateway, which routes `/admin/**` to it; in local dev the Vite proxy forwards `/admin/v1`). Same `Authorization: Bearer …` header as every other call.
+
+```json
+{ "data": [ { "id": "…", "label": "Dashboard", "path": "/", "icon": "ChartBarIcon" } ] }
+```
+
+The list is the union of the menus of every role the user holds, active menus only, in the saved order. It is read from the database on every call, so a change an admin makes shows on the next request (the app re-checks when the browser tab regains focus). Errors: `401` (token), `403` (no matching user in the admin console's `users` table, or not active) → the "No access" screen; `5xx` / network → an error with Retry. A planned hook, `useMyMenus()` (TanStack Query), wraps it; the call is not made when auth is disabled.
+
+
 ---
 
 ## 2. TypeScript Type Definitions

@@ -104,12 +104,10 @@ baked per environment. Set them in `.env` for `npm run build`, or as build args 
 
 ### Role-aware sidebar prerequisites (Milestone 10)
 
-> **Planned — Milestone 10. Not implemented yet;** this is the agreed design, written first (docs-first).
-
 The sidebar is drawn from `cce-admin-service`, so a deployment needs, in addition to what Insights already needs:
 
 - **Routing:** `/admin/**` must reach the gateway (and the gateway's `admin-service` route) from the Insights origin. The Kubernetes files have no such route today (open question Q5 in `cce-admin-service`).
-- **CORS:** the gateway's `ALLOWED_ORIGINS` must list the Insights origin, or the browser's `GET` may pass but any non-simple request is refused with an empty `403`.
+- **CORS:** if the Insights origin differs from the gateway's, the gateway's `ALLOWED_ORIGINS` must list it — the call carries an `Authorization` header, so the browser preflights it and an unlisted origin is refused (an empty `403`). A same-origin deployment through the ingress needs nothing.
 - **Gateway rows:** every role that should use Insights needs the permission rows `GET /admin/v1/me` and `GET /admin/v1/me/menus` (on the role's **Permissions** tab), then a sync — otherwise the gateway answers `403` and that user sees "No access".
 - **Users:** each person needs a row in the admin console's `users` table with the same email as their Keycloak account; people onboarded elsewhere have none and get no menus (open question Q4).
 - **Keycloak client `cce-insights-ui`:** valid redirect URIs and web origins for the deployed path; it already carries the `email` and `gateway-audience` scopes the call needs.

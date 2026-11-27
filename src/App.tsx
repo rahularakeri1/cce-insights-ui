@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import { Sidebar } from './components/layout/Sidebar';
 import { LoadingSpinner } from './components/shared/LoadingSpinner';
@@ -6,6 +6,9 @@ import { DateRangeFilter } from './components/shared/DateRangeFilter';
 import { DistrictFilter } from './components/shared/DistrictFilter';
 import { FacilityFilter } from './components/shared/FacilityFilter';
 import { authEnabled, logout } from './auth/keycloak';
+import { MenusError, NoAccess } from './components/layout/AccessScreens';
+import { useMenuAccess } from './hooks/useMenuAccess';
+import { isAllowed } from './utils/menuAccess';
 import mohLogo from './assets/rwanda-national-coat-of-arms.png';
 
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -22,9 +25,18 @@ const Exports = lazy(() => import('./pages/Exports'));
 const Intelligence = lazy(() => import('./pages/Intelligence'));
 
 export function App() {
+  const access = useMenuAccess();
+  const { pathname } = useLocation();
+  // Filters query data pages: show them only where pages can be shown at all.
+  const showPages = access.mode === 'open' || access.mode === 'ready';
+
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar />
+      <Sidebar
+        items={access.mode === 'ready' ? access.items : access.mode === 'open' ? undefined : []}
+        status={access.mode === 'loading' ? 'loading' : access.mode === 'error' ? 'error' : 'ready'}
+        onRetry={access.mode === 'error' ? access.retry : undefined}
+      />
       <div className="ml-56 flex-1">
         <header className="sticky top-0 z-20 flex items-center justify-between gap-4 bg-[#1d5fae] px-6 py-2.5">
           <div className="flex items-center gap-3">
@@ -36,9 +48,13 @@ export function App() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-          <DistrictFilter />
-          <FacilityFilter />
-          <DateRangeFilter />
+          {showPages && (
+            <>
+              <DistrictFilter />
+              <FacilityFilter />
+              <DateRangeFilter />
+            </>
+          )}
           {authEnabled && (
             <div className="flex items-center gap-3 border-l border-blue-400/50 pl-4">
               <button
@@ -53,22 +69,28 @@ export function App() {
           </div>
         </header>
         <main className="p-6">
-          <Suspense fallback={<LoadingSpinner />}>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/compliance" element={<ComplianceOverview />} />
-              <Route path="/compliance/protocols/:id" element={<ProtocolAnalytics />} />
-              <Route path="/compliance/patients" element={<PatientList />} />
-              <Route path="/compliance/patients/:id" element={<PatientDetail />} />
-              <Route path="/deviations" element={<Deviations />} />
-              <Route path="/events" element={<EventVolume />} />
-              <Route path="/facilities" element={<FacilityAnalytics />} />
-              <Route path="/practitioners" element={<PractitionerAnalytics />} />
-              <Route path="/ingestion" element={<IngestionPipeline />} />
-              <Route path="/intelligence" element={<Intelligence />} />
-              <Route path="/exports" element={<Exports />} />
-            </Routes>
-          </Suspense>
+          {access.mode === 'loading' && <LoadingSpinner />}
+          {access.mode === 'error' && <MenusError onRetry={access.retry} retrying={access.retrying} />}
+          {access.mode === 'none' && <NoAccess />}
+          {access.mode === 'ready' && !isAllowed(pathname, access.allowed) && <Navigate to={access.first} replace />}
+          {(access.mode === 'open' || (access.mode === 'ready' && isAllowed(pathname, access.allowed))) && (
+            <Suspense fallback={<LoadingSpinner />}>
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/compliance" element={<ComplianceOverview />} />
+                <Route path="/compliance/protocols/:id" element={<ProtocolAnalytics />} />
+                <Route path="/compliance/patients" element={<PatientList />} />
+                <Route path="/compliance/patients/:id" element={<PatientDetail />} />
+                <Route path="/deviations" element={<Deviations />} />
+                <Route path="/events" element={<EventVolume />} />
+                <Route path="/facilities" element={<FacilityAnalytics />} />
+                <Route path="/practitioners" element={<PractitionerAnalytics />} />
+                <Route path="/ingestion" element={<IngestionPipeline />} />
+                <Route path="/intelligence" element={<Intelligence />} />
+                <Route path="/exports" element={<Exports />} />
+              </Routes>
+            </Suspense>
+          )}
         </main>
       </div>
     </div>

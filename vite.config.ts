@@ -18,6 +18,11 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 3001,
       proxy: {
+        // Milestone 10: the signed-in user's menus come from cce-admin-service (through the gateway in a deployment).
+        '/admin/v1': {
+          target: 'http://localhost:8085',
+          changeOrigin: true,
+        },
         '/v1/insights': {
           target: 'http://localhost:8093',
           changeOrigin: true,

@@ -195,14 +195,12 @@ inlines `VITE_*`; for the Docker image it is set via `--build-arg`). When the fl
    every API call; the gateway validates issuer, audience (`gateway-service`) and the
    `INSIGHTS_READ` role.
 5. `App.tsx` renders a **Sign out** button in the header when `authEnabled`.
+6. *(Milestone 10)* After login, the app also calls `GET /admin/v1/me/menus?console=INSIGHTS` with the same token to build the sidebar and guard routes — see [Role-aware sidebar](#role-aware-sidebar-milestone-10).
 
 When the flag is `false` (local dev / gateway-less demo), the auth path is inert and the app runs
 unauthenticated against the Vite proxy or a direct insights-service. See
 [`artifacts/insights-ui-auth-deployment.md`](../artifacts/insights-ui-auth-deployment.md) for the
 full Keycloak + gateway deployment procedure.
-
-> **Planned — Milestone 10. Not implemented yet;** this is the agreed design, written first (docs-first).
-6. *(Milestone 10)* After login, the app also calls `GET /admin/v1/me/menus?console=INSIGHTS` with the same token to build the sidebar and guard routes — see [Role-aware sidebar](#role-aware-sidebar-milestone-10).
 
 > **No runtime config.** There is no `window._env_` / entrypoint injection in this repo — all
 > config is build-time `import.meta.env.VITE_*`. `src/config.ts` holds only UI constants.
@@ -483,9 +481,7 @@ Icons from `@heroicons/react`: `ChartBarIcon`, `ClipboardDocumentCheckIcon`, `Ex
 
 ### Role-aware sidebar (Milestone 10)
 
-> **Planned — Milestone 10. Not implemented yet;** this is the agreed design, written first (docs-first).
-
-The 7-link list above is what the sidebar shows **today, for everyone**. Milestone 10 makes it follow the signed-in user's roles, using the same menu catalog that `cce-admin-ui` already uses for its own sidebar.
+The 7-link list above is what the sidebar shows when **auth is disabled** (local demo). With login (Milestone 10) it follows the signed-in user's roles, using the same menu catalog that `cce-admin-ui` already uses for its own sidebar.
 
 ```
 Keycloak login ──► token ──► GET /admin/v1/me/menus?console=INSIGHTS ──► the user's Insights menus

@@ -79,6 +79,19 @@ VITE_POLLING_INTERVAL=60000
 VITE_DEFAULT_DATE_RANGE_DAYS=90
 ```
 
+### 2.3b Running with login (Milestone 10)
+
+> **Planned — Milestone 10. Not implemented yet;** this is the agreed design, written first (docs-first).
+
+Role-aware menus need a real user, so run with login. Put this in `.env.local` (git-ignored; it overrides `.env`):
+
+```bash
+VITE_AUTH_ENABLED=true
+VITE_KEYCLOAK_URL=http://localhost:8081
+```
+
+Also needed locally: the Keycloak client `cce-insights-ui` must allow the redirect `http://localhost:3001/*`; the admin service must be running (the dev proxy sends `/admin/v1` to `localhost:8085`) and the insights service on the port the `/v1/insights` proxy targets (`8093`). The user you sign in as needs a row in the admin console's `users` table (create them on its **Users** screen), or the menus call answers `403` and you get "No access". Keycloak's single sign-on is shared with the admin console: to try another user, sign out of Keycloak or use a private window. With `VITE_AUTH_ENABLED` unset or `false` nothing changes: no login, all 7 links.
+
 ### 2.4 Start Development Server
 
 ```bash

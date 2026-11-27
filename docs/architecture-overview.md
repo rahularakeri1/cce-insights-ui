@@ -201,6 +201,9 @@ unauthenticated against the Vite proxy or a direct insights-service. See
 [`artifacts/insights-ui-auth-deployment.md`](../artifacts/insights-ui-auth-deployment.md) for the
 full Keycloak + gateway deployment procedure.
 
+> **Planned — Milestone 10. Not implemented yet;** this is the agreed design, written first (docs-first).
+6. *(Milestone 10)* After login, the app also calls `GET /admin/v1/me/menus?console=INSIGHTS` with the same token to build the sidebar and guard routes — see [Role-aware sidebar](#role-aware-sidebar-milestone-10).
+
 > **No runtime config.** There is no `window._env_` / entrypoint injection in this repo — all
 > config is build-time `import.meta.env.VITE_*`. `src/config.ts` holds only UI constants.
 
@@ -476,6 +479,32 @@ Ingestion       → /ingestion
 (direct-URL access only).
 
 Icons from `@heroicons/react`: `ChartBarIcon`, `ClipboardDocumentCheckIcon`, `ExclamationTriangleIcon`, `SignalIcon`, `BuildingOffice2Icon`, `CogIcon`.
+
+
+### Role-aware sidebar (Milestone 10)
+
+> **Planned — Milestone 10. Not implemented yet;** this is the agreed design, written first (docs-first).
+
+The 7-link list above is what the sidebar shows **today, for everyone**. Milestone 10 makes it follow the signed-in user's roles, using the same menu catalog that `cce-admin-ui` already uses for its own sidebar.
+
+```
+Keycloak login ──► token ──► GET /admin/v1/me/menus?console=INSIGHTS ──► the user's Insights menus
+                                                                          (label, path, icon, order)
+                                  ├─► Sidebar draws them
+                                  └─► route guard: a page the user has no menu for redirects to the first allowed one
+```
+
+| Situation | What the user sees |
+|---|---|
+| Menus loading | the page area shows the spinner; no sidebar entries yet (never the wrong list) |
+| Menus loaded | the sidebar shows exactly the user's menus, in the saved order, with the saved icons |
+| The call fails (5xx, network) | an error with **Retry**; no sidebar entries |
+| The call answers `403`, or the user has no menus | a **"No access"** screen with **Sign out** |
+| Auth disabled (`VITE_AUTH_ENABLED` not `true`, local demo) | today's behaviour: all 7 links, no call, no guard |
+
+**Which menu governs a page.** Only the seven sidebar paths are governed: `/`, `/facilities`, `/compliance`, `/deviations`, `/compliance/patients`, `/events`, `/ingestion`. A page belongs to the **longest** of those that prefixes its path (`/` matches only the exact root): `/compliance/protocols/:id` belongs to Compliance, `/compliance/patients/:id` to Patients (not Compliance). A user may open a page only if their menus include its governing path. `/practitioners`, `/intelligence` and `/exports` have no menu entry, so they stay open to every signed-in user. A path the user may not open redirects to their first allowed menu; `/` for a user without Dashboard does the same.
+
+This is the **soft** control (what is shown). The data behind each page is still protected by the gateway's permission rows (`INSIGHTS_READ` / `COMPLIANCE_READ`), unchanged. The icon on each menu entry is finally used here: a curated set of Heroicons outline names (the same set as `cce-admin-ui`); a missing or unknown name shows no icon.
 
 ---
 

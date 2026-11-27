@@ -81,6 +81,25 @@ lost its "Search Facility" free-text box, now redundant with the global picker.
 
 ---
 
+## 0b. Role-aware sidebar (Milestone 10)
+
+> **Planned — Milestone 10. Not implemented yet;** this is the agreed design, written first (docs-first).
+
+```
+ FACILITY_ADMIN (holds Dashboard only)          SUPER_ADMIN (holds all 7)         User with no menus
+┌────────────────────┐                         ┌────────────────────┐            ┌────────────────────────────┐
+│ CCE Insights       │                         │ CCE Insights       │            │  No access to CCE Insights │
+│  ▣ Dashboard       │                         │  ▣ Dashboard       │            │  Your role has no pages.   │
+│                    │                         │  ▤ Facilities  …   │            │  Ask an administrator.     │
+└────────────────────┘                         └────────────────────┘            │          [ Sign out ]      │
+                                                                                   └────────────────────────────┘
+ Menus failed to load:  "Could not load your menus"  [ Retry ]   (sidebar empty; never the wrong list)
+```
+
+- The sidebar shows the user's own menus, in the order set on the admin console's **Menus** screen, each with its saved icon. Deactivated menus are not shown.
+- Typing a URL the user has no menu for redirects to their first allowed page. Detail pages follow their parent menu (rules in [architecture-overview.md](architecture-overview.md#role-aware-sidebar-milestone-10)); Practitioners, Intelligence and Exports stay open.
+- Local demo mode (auth off) is unchanged: all 7 links.
+
 ## Table of Contents
 
 1. [Dashboard](#1-dashboard)
